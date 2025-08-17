@@ -34,6 +34,11 @@ import io.swagger.v3.oas.annotations.servers.Server;
         @Server(
             description = "TEST ENV",
             url = "https://websocketdemo.onrender.com"
+        ),
+        
+        @Server(
+        description="Local Test",
+        url= "http://10.22.194.204:8080"
         )
     },
     security = {

@@ -19,7 +19,7 @@ public class ProductService {
 	   product.setName(dto.name());
 	   product.setCategory(dto.category());
 	   Product saved=repo.save(product);
-	   wsController.broadcastProduct(product); // notify all websocket subscribers
+	   wsController.broadcastProduct(saved); // notify all websocket subscribers
 	   return saved.getId();
    }
    public List<Product> findAll(){
