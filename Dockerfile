@@ -1,4 +1,5 @@
-FROM ghcr.io/graalvm/native-image-community:22.3.3 AS builder
+# ---- Build Stage ----
+FROM ghcr.io/graalvm/native-image-community:17-musl AS builder
 WORKDIR /app
 
 # Copy Gradle files
@@ -18,15 +19,8 @@ COPY src ./src
 RUN ./gradlew nativeCompile --no-daemon
 
 # ---- Run Stage ----
-FROM ubuntu:22.04
+FROM alpine:3.18
 WORKDIR /app
-
-# Install required libraries for native image
-RUN apt-get update && apt-get install -y \
-    libgmp-dev \
-    libssl-dev \
-    libz-dev \
-    && rm -rf /var/lib/apt/lists/*
 
 # Copy the native executable from builder
 COPY --from=builder /app/build/native/nativeCompile/application .
