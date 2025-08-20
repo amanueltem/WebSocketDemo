@@ -1,5 +1,5 @@
 # ---- Build Stage ----
-FROM ghcr.io/graalvm/graalvm-ce:23.0.2-java17 AS builder
+FROM ghcr.io/graalvm/jdk-community:23.0.2 AS builder
 WORKDIR /app
 
 # Install native-image
