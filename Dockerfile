@@ -2,6 +2,10 @@
 FROM ghcr.io/graalvm/native-image-community:17 AS builder
 WORKDIR /app
 
+# Install essential tools for Gradle to download dependencies
+RUN microdnf install -y curl unzip gzip tar git ca-certificates && \
+    microdnf clean all
+
 # Copy Gradle files
 COPY build.gradle settings.gradle gradlew ./
 COPY gradle ./gradle
@@ -10,7 +14,7 @@ COPY gradle ./gradle
 RUN chmod +x ./gradlew
 
 # Download dependencies (cache)
-RUN ./gradlew dependencies --no-daemon || return 0
+RUN ./gradlew dependencies --no-daemon
 
 # Copy source code
 COPY src ./src
