@@ -6,6 +6,9 @@ WORKDIR /app
 COPY build.gradle settings.gradle gradlew ./
 COPY gradle ./gradle
 
+# Fix gradlew permission
+RUN chmod +x ./gradlew
+
 # Download dependencies (caching)
 RUN ./gradlew dependencies --no-daemon || return 0
 
