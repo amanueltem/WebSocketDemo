@@ -1,30 +1,29 @@
-# -------- Build stage --------
-FROM maven:3.9.6-eclipse-temurin-17-alpine AS build
-
-# Set work directory
+# ---- Build Stage ----
+FROM gradle:8.9.0-jdk17 AS builder
 WORKDIR /app
 
-# Copy pom.xml and download dependencies
-COPY pom.xml .
-RUN mvn dependency:go-offline
+# Copy Gradle build files
+COPY build.gradle settings.gradle gradlew ./
+COPY gradle ./gradle
+
+# Download dependencies (caching)
+RUN ./gradlew dependencies --no-daemon || return 0
 
 # Copy source code
 COPY src ./src
 
-# Build the application (skip tests for faster build)
-RUN mvn clean package -DskipTests
+# Build the application
+RUN ./gradlew bootJar --no-daemon
 
-# -------- Runtime stage --------
+# ---- Run Stage ----
 FROM eclipse-temurin:17-jdk-alpine
-
 WORKDIR /app
 
-# Copy only the final JAR from the build stage
-COPY --from=build /app/target/*.jar app.jar
+# Copy jar from build stage
+COPY --from=builder /app/build/libs/*.jar app.jar
 
-# Expose Spring Boot default port
+# Expose port (Render expects PORT env variable)
 EXPOSE 8080
 
-# Run the app with memory limits
-CMD ["java", "-Xms64m", "-Xmx128m", "-jar", "app.jar"]
-
+# Run app
+ENTRYPOINT ["java", "-jar", "app.jar"]

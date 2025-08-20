@@ -1,0 +1,8 @@
+[
+  {
+    "name": "org.springframework.boot.http.client.ClientHttpRequestFactorySettings",
+    "allDeclaredConstructors": true,
+    "allPublicMethods": true
+  }
+]
+
