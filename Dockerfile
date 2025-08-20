@@ -2,9 +2,6 @@
 FROM ghcr.io/graalvm/native-image-community:17 AS builder
 WORKDIR /app
 
-# Install native-image
-RUN gu install native-image
-
 # Copy Gradle files
 COPY build.gradle settings.gradle gradlew ./
 COPY gradle ./gradle
