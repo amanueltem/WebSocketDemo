@@ -1,10 +1,10 @@
-# ---- Build Stage ----
-FROM ghcr.io/graalvm/native-image-community:17 AS builder
+FROM ghcr.io/graalvm/jdk-community:17 AS builder
 WORKDIR /app
 
-# Install essential tools for Gradle to download dependencies
-RUN microdnf install -y curl unzip gzip tar git ca-certificates && \
-    microdnf clean all
+# Install essential tools for Gradle
+RUN apt-get update && apt-get install -y \
+    curl unzip gzip tar git ca-certificates bash \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy Gradle files
 COPY build.gradle settings.gradle gradlew ./
@@ -13,7 +13,7 @@ COPY gradle ./gradle
 # Make gradlew executable
 RUN chmod +x ./gradlew
 
-# Download dependencies (cache)
+# Download dependencies
 RUN ./gradlew dependencies --no-daemon
 
 # Copy source code
