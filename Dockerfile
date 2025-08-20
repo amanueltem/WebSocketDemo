@@ -1,9 +1,5 @@
-# ---- Build Stage ----
-FROM ghcr.io/graalvm/graalvm-ce:22.3.2-java17 AS builder
+FROM ghcr.io/graalvm/native-image-community:22.3.3 AS builder
 WORKDIR /app
-
-# Install native-image
-RUN gu install native-image
 
 # Copy Gradle files
 COPY build.gradle settings.gradle gradlew ./
