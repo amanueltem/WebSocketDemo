@@ -18,25 +18,15 @@ COPY src ./src
 # Build native image
 RUN ./gradlew nativeCompile --no-daemon
 
-# ---- Run Stage ----
 FROM ubuntu:22.04
 WORKDIR /app
 
-# Install required libraries for native image
 RUN apt-get update && apt-get install -y \
-    libgmp-dev \
-    libssl-dev \
-    libz-dev \
+    libgmp-dev libssl-dev libz-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy the native executable from builder
-COPY --from=builder /app/build/native/nativeCompile/application .
-
-# Make sure it’s executable
+COPY application .
 RUN chmod +x ./application
 
-# Expose port (Render expects $PORT)
 EXPOSE 8080
-
-# Run the native binary
 ENTRYPOINT ["./application"]
