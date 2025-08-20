@@ -1,32 +1,35 @@
 # ---- Build Stage ----
-FROM gradle:8.9.0-jdk17 AS builder
+FROM ghcr.io/graalvm/native-image:22.3.3-java17 AS builder
 WORKDIR /app
 
-# Copy Gradle build files
+# Copy Gradle files
 COPY build.gradle settings.gradle gradlew ./
 COPY gradle ./gradle
 
-# Fix gradlew permission
+# Make gradlew executable
 RUN chmod +x ./gradlew
 
-# Download dependencies (caching)
+# Download dependencies (cache)
 RUN ./gradlew dependencies --no-daemon || return 0
 
 # Copy source code
 COPY src ./src
 
-# Build the application
-RUN ./gradlew bootJar --no-daemon
+# Build native image
+RUN ./gradlew nativeCompile --no-daemon
 
 # ---- Run Stage ----
-FROM eclipse-temurin:17-jdk-alpine
+FROM alpine:3.18
 WORKDIR /app
 
-# Copy jar from build stage
-COPY --from=builder /app/build/libs/*.jar app.jar
+# Copy the native executable from builder
+COPY --from=builder /app/build/native/nativeCompile/application .
 
-# Expose port (Render expects PORT env variable)
+# Make sure it’s executable
+RUN chmod +x ./application
+
+# Expose port (Render expects $PORT)
 EXPOSE 8080
 
-# Run app
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run the native binary
+ENTRYPOINT ["./application"]
