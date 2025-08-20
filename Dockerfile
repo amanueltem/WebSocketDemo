@@ -1,32 +1,13 @@
-# ---- Build Stage ----
-FROM ghcr.io/graalvm/native-image-community:17 AS builder
-WORKDIR /app
-
-# Copy Gradle files
-COPY build.gradle settings.gradle gradlew ./
-COPY gradle ./gradle
-
-# Make gradlew executable
-RUN chmod +x ./gradlew
-
-# Download dependencies (cache)
-RUN ./gradlew dependencies --no-daemon || return 0
-
-# Copy source code
-COPY src ./src
-
-# Build native image
-RUN ./gradlew nativeCompile --no-daemon
-
 FROM ubuntu:22.04
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y \
-    libgmp-dev libssl-dev libz-dev \
-    && rm -rf /var/lib/apt/lists/*
+# Copy native binary
+COPY deploy/WebSocketDemo /app/WebSocketDemo
+RUN chmod +x /app/WebSocketDemo
 
-COPY application .
-RUN chmod +x ./application
+# Expose port Render will use
+EXPOSE 10000
 
-EXPOSE 8080
-ENTRYPOINT ["./application"]
+# Start your app
+CMD ["./WebSocketDemo"]
+
